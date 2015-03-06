@@ -472,6 +472,7 @@ Include-Resource: WEB-INF/=server-config.wsdd,classes;filter:=*.wsdd
 			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
 			<fileset dir="${app.server.lib.portal.dir}" includes="${plugin.jars}" />
 			<fileset dir="${sdk.dir}/dependencies/com.liferay.jasper.jspc/lib" includes="*.jar" />
+			<pathelement location="${liferay.home}/osgi/modules/com.liferay.asset.categories.admin.web.jar" />
 			<pathelement location="${app.server.lib.portal.dir}/ant.jar" />
 			<pathelement location="${compile.jsp.base.dir}/WEB-INF/classes" />
 			<fileset dir="${compile.jsp.base.dir}/WEB-INF/lib" includes="*.jar" />
