@@ -461,6 +461,7 @@ Include-Resource: WEB-INF/=server-config.wsdd,classes;filter:=*.wsdd
 		<path id="jspc.classpath">
 			<pathelement location="${jspc.java.home}/jre/lib/rt.jar" />
 			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
+			<fileset dir="${app.server.lib.portal.dir}" includes="${plugin.jars}" />
 			<fileset dir="${sdk.dir}/dependencies/com.liferay.jasper.jspc/lib" includes="*.jar" />
 			<pathelement location="${app.server.lib.portal.dir}/ant.jar" />
 			<pathelement location="docroot/WEB-INF/classes" />
@@ -481,7 +482,6 @@ Include-Resource: WEB-INF/=server-config.wsdd,classes;filter:=*.wsdd
 		</java>
 
 		<echo>${jspc.output}</echo>
-
 		<if>
 			<contains string="${jspc.output}" substring="JasperException" />
 			<then>
