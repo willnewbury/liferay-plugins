@@ -436,6 +436,15 @@ Include-Resource: WEB-INF/=server-config.wsdd,classes;filter:=*.wsdd
 
 		<if>
 			<not>
+				<isset property="compile.jsp.base.dir" />
+			</not>
+			<then>
+				<property name="compile.jsp.base.dir" value="docroot" />
+			</then>
+		</if>
+
+		<if>
+			<not>
 				<equals arg1="${app.server.type}" arg2="tomcat" />
 			</not>
 			<then>
@@ -464,8 +473,8 @@ Include-Resource: WEB-INF/=server-config.wsdd,classes;filter:=*.wsdd
 			<fileset dir="${app.server.lib.portal.dir}" includes="${plugin.jars}" />
 			<fileset dir="${sdk.dir}/dependencies/com.liferay.jasper.jspc/lib" includes="*.jar" />
 			<pathelement location="${app.server.lib.portal.dir}/ant.jar" />
-			<pathelement location="docroot/WEB-INF/classes" />
-			<fileset dir="docroot/WEB-INF/lib" includes="*.jar" />
+			<pathelement location="${compile.jsp.base.dir}/WEB-INF/classes" />
+			<fileset dir="${compile.jsp.base.dir}/WEB-INF/lib" includes="*.jar" />
 		</path>
 
 		<delete dir="${jspc.classes.dir}" quiet="true" />
@@ -478,7 +487,7 @@ Include-Resource: WEB-INF/=server-config.wsdd,classes;filter:=*.wsdd
 			newenvironment="true"
 			outputproperty="jspc.output"
 		>
-			<arg line="-d ${jspc.classes.dir} -webapp docroot" />
+			<arg line="-d ${jspc.classes.dir} -webapp ${compile.jsp.base.dir}" />
 		</java>
 
 		<echo>${jspc.output}</echo>
