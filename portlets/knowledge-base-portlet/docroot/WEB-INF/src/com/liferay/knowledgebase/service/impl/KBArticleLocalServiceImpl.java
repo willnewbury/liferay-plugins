@@ -1730,7 +1730,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	}
 
 	protected void notifySubscribers(
-			long contextUserId, KBArticle kbArticle,
+			long creatorUserId, KBArticle kbArticle,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -1813,8 +1813,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			"[$ARTICLE_TITLE$]", kbArticle.getTitle(), false);
 		subscriptionSender.setContextAttribute(
 			"[$ARTICLE_TITLE_DIFF$]", kbArticleDiffs.get("title"), false);
-		subscriptionSender.setContextUserId(contextUserId);
 		subscriptionSender.setContextUserPrefix("ARTICLE");
+		subscriptionSender.setCreatorUserId(creatorUserId);
 		subscriptionSender.setFrom(fromAddress, fromName);
 		subscriptionSender.setHtmlFormat(true);
 		subscriptionSender.setMailId("kb_article", kbArticle.getKbArticleId());
