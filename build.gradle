@@ -15,14 +15,33 @@ buildscript {
 }
 
 configure(allprojects) {
-	File pluginSrcDir = file("${projectDir}/docroot")
+	configurations {
+		all {
+			resolutionStrategy.cacheChangingModulesFor 15, 'minutes'
+		}
+	}
+
+	repositories {
+		maven {
+			url "http://cdn.repository.liferay.com/nexus/content/groups/public"
+		}
+	}
+
+	File pluginDocrootDir = file("${projectDir}/docroot")
+	File pluginSrcDir = file("${projectDir}/docroot/WEB-INF/src")
 
 	if (!pluginSrcDir.exists()) {
+		pluginDocrootDir = null
+
 		pluginSrcDir = file("${projectDir}/src")
 
 		if (!pluginSrcDir.exists()) {
 			pluginSrcDir = null
 		}
+	}
+
+	if (pluginDocrootDir) {
+		ext.pluginDocrootDir = pluginDocrootDir
 	}
 
 	if (pluginSrcDir) {
@@ -60,23 +79,18 @@ configure(
 	task initGradle
 
 	buildCss {
-		configurations {
-			all {
-				resolutionStrategy.cacheChangingModulesFor 5, 'minutes'
-			}
+		Closure setOutputs
+		Closure setSassProperties
 
+		File sassDocrootDir
+
+		FileTree sassDocrootDirFileTree
+
+		configurations {
 			buildCssClasspath
 
 			portalWeb
 		}
-
-		args = [
-			"sass.dir=/",
-			"sass.docroot.dir=${projectDir}/docroot",
-			"sass.portal.common.dir=${rootDir}/tmp/portal-web/html/css/common"
-		]
-
-		classpath = configurations.buildCssClasspath
 
 		dependencies {
 			buildCssClasspath(
@@ -100,6 +114,14 @@ configure(
 		}
 
 		doFirst {
+			args = [
+				"sass.dir=/",
+				"sass.docroot.dir=${sassDocrootDir}",
+				"sass.portal.common.dir=${rootDir}/tmp/portal-web/html/css/common"
+			]
+
+			classpath = configurations.buildCssClasspath
+
 			if (!exists("${rootDir}/tmp/portal-web")) {
 				copy {
 					from(zipTree(configurations.portalWeb.singleFile)) {
@@ -116,11 +138,40 @@ configure(
 		main = "com.liferay.portal.tools.SassToCssBuilder"
 
 		onlyIf {
-			pluginSrcDir.equals(file("${projectDir}/docroot"))
+			sassDocrootDirFileTree.getFiles()
 		}
+
+		setOutputs = {
+			outputs.dir "${rootDir}/tmp"
+
+			sassDocrootDirFileTree.each {
+				outputs.dir "${it}/../.sass-cache"
+			}
+		}
+
+		setSassProperties = {
+			if (osgiPlugin) {
+				sassDocrootDir = file("${projectDir}/src/META-INF/resources")
+			}
+			else {
+				sassDocrootDir = file("${projectDir}/docroot")
+			}
+
+			sassDocrootDirFileTree = fileTree(dir: sassDocrootDir, include: "**/*.css")
+		}
+
+		setSassProperties()
+
+		setOutputs()
 	}
 
 	clean {
+		afterEvaluate {
+			tasks.each {
+				delete it.outputs
+			}
+		}
+
 		Map projectCompileDependencies = gradle.compileDependencies.find {
 			project.path == it.projectPath
 		}
@@ -136,42 +187,52 @@ configure(
 		dependsOn compileJava
 	}
 
-	dependencies {
-		Map projectCompileDependencies = gradle.compileDependencies.find {
-			project.path == it.projectPath
-		}
+	compileJava {
+		dependencies {
+			afterEvaluate {
+				String projectServiceJarFile = "${projectDir}/docroot/WEB-INF/lib/${project.name}-service.jar"
 
-		if (projectCompileDependencies) {
-			projectCompileDependencies["compile"].each {
-				compile project(it)
+				if (exists(projectServiceJarFile)) {
+					compile(files(projectServiceJarFile))
+				}
 			}
-		}
 
-		if (!project.name.endsWith("-layouttpl") && !project.name.equals("portal-compat-shared")) {
-			compile project(":shared:portal-compat-shared")
-		}
+			Map projectCompileDependencies = gradle.compileDependencies.find {
+				project.path == it.projectPath
+			}
 
-		providedCompile(
-			[group: "com.liferay", name: "aQute.bnd", version: "2.3.0"],
-			[group: "com.liferay.portal", name: "portal-service", version: "7.0.0-SNAPSHOT"],
-			[group: "com.liferay.portal", name: "util-bridges", version: "7.0.0-SNAPSHOT"],
-			[group: "com.liferay.portal", name: "util-java", version: "7.0.0-SNAPSHOT"],
-			[group: "com.liferay.portal", name: "util-taglib", version: "7.0.0-SNAPSHOT"],
-			[group: "commons-logging", name: "commons-logging", version: "1.1.1"],
-			[group: "hsqldb", name: "hsqldb", version: "1.8.0.7"],
-			[group: "javax.activation", name: "activation", version: "1.1"],
-			[group: "javax.ccpp", name: "ccpp", version: "1.0"],
-			[group: "javax.jms", name: "jms", version: "1.1"],
-			[group: "javax.mail", name: "mail", version: "1.4"],
-			[group: "javax.portlet", name: "portlet-api", version: "2.0"],
-			[group: "javax.servlet", name: "javax.servlet-api", version: "3.0.1"],
-			[group: "javax.servlet.jsp", name: "jsp-api", version: "2.1"],
-			[group: "log4j", name: "log4j", version: "1.2.16"],
-			[group: "mysql", name: "mysql-connector-java", version: "5.1.23"],
-			[group: "net.sf", name: "jargs", version: "1.0"],
-			[group: "net.sourceforge.jtds", name: "jtds", version: "1.2.6"],
-			[group: "org.eclipse.persistence", name: "javax.persistence", version: "2.0.0"],
-			[group: "postgresql", name: "postgresql", version: "9.2-1002.jdbc4"])
+			if (projectCompileDependencies) {
+				projectCompileDependencies["compile"].each {
+					compile project(it)
+				}
+			}
+
+			if (!project.name.endsWith("-layouttpl") && !project.name.equals("portal-compat-shared")) {
+				compile project(":shared:portal-compat-shared")
+			}
+
+			providedCompile(
+				[group: "biz.aQute.bnd", name: "biz.aQute.bnd", version: "2.4.1"],
+				[group: "com.liferay.portal", name: "portal-service", version: "7.0.0-SNAPSHOT"],
+				[group: "com.liferay.portal", name: "util-bridges", version: "7.0.0-SNAPSHOT"],
+				[group: "com.liferay.portal", name: "util-java", version: "7.0.0-SNAPSHOT"],
+				[group: "com.liferay.portal", name: "util-taglib", version: "7.0.0-SNAPSHOT"],
+				[group: "commons-logging", name: "commons-logging", version: "1.1.1"],
+				[group: "hsqldb", name: "hsqldb", version: "1.8.0.7"],
+				[group: "javax.activation", name: "activation", version: "1.1"],
+				[group: "javax.ccpp", name: "ccpp", version: "1.0"],
+				[group: "javax.jms", name: "jms", version: "1.1"],
+				[group: "javax.mail", name: "mail", version: "1.4"],
+				[group: "javax.portlet", name: "portlet-api", version: "2.0"],
+				[group: "javax.servlet", name: "javax.servlet-api", version: "3.0.1"],
+				[group: "javax.servlet.jsp", name: "jsp-api", version: "2.1"],
+				[group: "log4j", name: "log4j", version: "1.2.16"],
+				[group: "mysql", name: "mysql-connector-java", version: "5.1.23"],
+				[group: "net.sf", name: "jargs", version: "1.0"],
+				[group: "net.sourceforge.jtds", name: "jtds", version: "1.2.6"],
+				[group: "org.eclipse.persistence", name: "javax.persistence", version: "2.0.0"],
+				[group: "postgresql", name: "postgresql", version: "9.2-1002.jdbc4"])
+		}
 	}
 
 	exists = {
@@ -376,7 +437,21 @@ configure(
 				String[] importSharedArray = importShared.split(",")
 
 				importSharedArray.each {
-					contents << "includeTransitive \":shared:${it}\""
+					String includeTransitivePath
+
+					if (exists("${rootDir}/shared/${it}/src")) {
+						includeTransitivePath = ":shared:${it}"
+					}
+					else if (exists("${projectDir}/../${it}/src")) {
+						includeTransitivePath = project.path.replaceFirst(project.name, it)
+					}
+					else {
+						println("Project dependency ${it} could not be found in the shared directory or this project's parent directory.")
+
+						return
+					}
+
+					contents << "includeTransitive \"${includeTransitivePath}\""
 				}
 
 				contents.each {
@@ -440,12 +515,6 @@ configure(
 		}
 	}
 
-	repositories {
-		maven {
-			url "http://cdn.repository.liferay.com/nexus/content/groups/public"
-		}
-	}
-
 	setModuleProperties = {
 
 		// osgiPlugin
@@ -492,14 +561,55 @@ configure(
 			java {
 				srcDir pluginSrcDir
 			}
+			resources {
+				srcDir pluginSrcDir
+			}
 		}
 	}
 
 	war {
+		Closure getLanguageProperties
+
 		dependsOn buildCss
 
 		destinationDir = file("${rootDir}/dist")
+
+		duplicatesStrategy "exclude"
+
+		exclude "_diffs.*", "_diffs/**", "WEB-INF/lib/*"
+
+		filesMatching("WEB-INF/liferay-hook.xml") {
+			filter {
+				line ->
+
+				line.contains("content/Language*.properties") ? getLanguageProperties() : line
+			}
+		}
+
+		getLanguageProperties = {
+			StringBuilder sb = new StringBuilder()
+
+			File contentDir = file("${pluginSrcDir}/content");
+
+			File[] files = contentDir.listFiles();
+
+			for (int i = 0; i < files.length; i++) {
+				File file = files[i];
+
+				sb << "\t<language-properties>content/" + file.name + "</language-properties>"
+
+				if ((i + 1) < files.length) {
+					sb << "\n"
+				}
+			}
+
+			return sb.toString()
+		}
+
+		outputs.file archivePath
 	}
+
+	webAppDirName = "docroot"
 
 	readConfigurations()
 
