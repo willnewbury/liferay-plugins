@@ -608,6 +608,14 @@ Error-Prone was automatically installed. Please rerun your task.
 						/>
 					</then>
 				</elseif>
+				<elseif>
+					<antelope:endswith string="${plugin.name}" with=".web" />
+					<then>
+						<compile-module
+							module.dir="@{module.dir}"
+						/>
+					</then>
+				</elseif>
 				<else>
 					<process-ivy
 						module.dir="@{module.dir}"
@@ -904,6 +912,34 @@ Error-Prone was automatically installed. Please rerun your task.
 		</sequential>
 	</macrodef>
 
+	<macrodef name="compile-module">
+		<attribute name="module.dir" />
+
+		<sequential>
+			<set-module-properties
+				module.dir="@{module.dir}"
+			/>
+
+			<process-ivy
+				module.dir="@{module.dir}"
+			/>
+
+			<copy todir="@{module.dir}/lib">
+				<fileset dir="${app.server.lib.portal.dir}" includes="${plugin.jars}" />
+			</copy>
+
+			<copy todir="@{module.dir}/lib">
+				<fileset dir="${app.server.lib.portal.dir}" includes="${required.portal.jars}" />
+			</copy>
+
+			<compile-java
+				javac.classpathref="plugin.classpath"
+				javac.destdir="@{module.dir}/classes"
+				javac.srcdir="@{module.dir}/src"
+				module.dir="@{module.dir}"
+			/>
+		</sequential>
+	</macrodef>
 	<macrodef name="compile-portlet">
 		<attribute name="module.dir" />
 

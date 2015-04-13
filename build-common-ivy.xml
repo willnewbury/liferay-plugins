@@ -265,6 +265,29 @@
 					<var name="plugin.tlds" value="${plugin-package.portal-dependency-tlds}" />
 					<var name="plugin.version" value="${plugin-package.module-incremental-version}" />
 				</then>
+				<elseif>
+					<available file="@{module.dir}/liferay-module-package.properties" />
+					<then>
+						<var name="plugin-package.module-incremental-version" unset="true" />
+						<var name="plugin-package.portal-dependency-jars" unset="true" />
+						<var name="plugin-package.portal-dependency-tlds" unset="true" />
+						<var name="plugin-package.required-deployment-contexts" unset="true" />
+
+						<property file="@{module.dir}/liferay-module-package.properties" prefix="plugin-package" />
+
+						<if>
+							<isset property="plugin-package.module-full-version" />
+							<then>
+								<var name="plugin.full.version" value="${plugin-package.module-full-version}" />
+							</then>
+						</if>
+
+						<var name="plugin.jars" value="${plugin-package.portal-dependency-jars}" />
+						<var name="plugin.required.contexts" value="${plugin-package.required-deployment-contexts}" />
+						<var name="plugin.tlds" value="${plugin-package.portal-dependency-tlds}" />
+						<var name="plugin.version" value="${plugin-package.module-incremental-version}" />
+					</then>
+				</elseif>
 				<else>
 					<set-build-xml-var
 						build.xml.var.name="plugin.version"
