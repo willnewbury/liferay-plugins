@@ -14,6 +14,7 @@
 			<mime-type>text/html</mime-type>
 		</supports>
 		<supported-locale>en</supported-locale>
+		<supported-locale>en_US</supported-locale>
 		<supported-locale>es</supported-locale>
 		<supported-locale>fr_FR</supported-locale>
 		<resource-bundle>com.liferay.testlocalized.resources.Resource</resource-bundle>
