@@ -2241,8 +2241,8 @@ Please find a solution that does not require portal-impl.jar.
 
 		<sequential>
 			<taskdef
-				classname="com.liferay.util.ant.ManifestHelperTask"
-				classpathref="portal.classpath"
+				classname="com.liferay.ant.bnd.ManifestHelperTask"
+				classpath="${sdk.dir}/dependencies/com.liferay.ant.bnd/lib/com.liferay.ant.bnd.jar"
 				name="liferay-manifest-helper"
 			/>
 
