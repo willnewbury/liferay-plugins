@@ -17,7 +17,9 @@ package com.liferay.portal.search.solr.internal.document;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.geolocation.GeoLocationPoint;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.solr.document.SolrDocumentFactory;
 
@@ -94,6 +96,16 @@ public class DefaultSolrDocumentFactory implements SolrDocumentFactory {
 	protected void addField(
 		SolrInputDocument solrInputDocument, Field field, String value,
 		String localizedName) {
+
+		String name = field.getName();
+
+		if (name.equals(Field.GEO_LOCATION)) {
+			GeoLocationPoint geoLocationPoint = field.getGeoLocationPoint();
+
+			value =
+				geoLocationPoint.getLatitude() + StringPool.COMMA +
+					geoLocationPoint.getLongitude();
+		}
 
 		solrInputDocument.addField(localizedName, value);
 
