@@ -81,7 +81,7 @@
 		<multiroot-subant
 			build.file="build.xml"
 			excludes="${plugins.excludes}"
-			includes="${plugins.includes}"
+			includes="portal/portal-soap-extender-test"
 			root.dir="${basedir}"
 			target="test-class-group"
 		>
