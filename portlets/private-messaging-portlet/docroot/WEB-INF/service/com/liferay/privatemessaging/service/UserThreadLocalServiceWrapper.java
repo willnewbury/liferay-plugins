@@ -34,21 +34,21 @@ public class UserThreadLocalServiceWrapper implements UserThreadLocalService,
 	}
 
 	@Override
-	public com.liferay.portlet.messageboards.model.MBMessage addPrivateMessage(
+	public com.liferay.message.boards.kernel.model.MBMessage addPrivateMessage(
 		long userId, long mbThreadId, java.lang.String to,
 		java.lang.String subject, java.lang.String body,
 		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _userThreadLocalService.addPrivateMessage(userId, mbThreadId,
 			to, subject, body, inputStreamOVPs, themeDisplay);
 	}
 
 	@Override
-	public com.liferay.portlet.messageboards.model.MBMessage addPrivateMessageBranch(
+	public com.liferay.message.boards.kernel.model.MBMessage addPrivateMessageBranch(
 		long userId, long parentMBMessageId, java.lang.String body,
 		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _userThreadLocalService.addPrivateMessageBranch(userId,
 			parentMBMessageId, body, inputStreamOVPs, themeDisplay);

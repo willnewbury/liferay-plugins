@@ -22,7 +22,10 @@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
-<%@ page import="com.liferay.chat.exception.NoSuchEntryException" %><%@
+<%@ page import="com.liferay.blogs.kernel.service.BlogsEntryLocalService" %><%@
+page import="com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil" %><%@
+page import="com.liferay.blogs.kernel.service.BlogsStatsUserLocalServiceUtil" %><%@
+page import="com.liferay.chat.exception.NoSuchEntryException" %><%@
 page import="com.liferay.chat.model.Entry" %><%@
 page import="com.liferay.chat.model.EntryClp" %><%@
 page import="com.liferay.chat.service.EntryLocalService" %><%@
@@ -46,10 +49,13 @@ page import="com.liferay.portal.kernel.messaging.MessageBusUtil" %><%@
 page import="com.liferay.portal.kernel.portlet.PortletClassLoaderUtil" %><%@
 page import="com.liferay.portal.kernel.search.SearchEngineUtil" %><%@
 page import="com.liferay.portal.kernel.security.pacl.permission.PortalFilePermission" %><%@
+page import="com.liferay.portal.kernel.theme.ThemeDisplay" %><%@
 page import="com.liferay.portal.kernel.util.HttpUtil" %><%@
 page import="com.liferay.portal.kernel.util.LocaleUtil" %><%@
 page import="com.liferay.portal.kernel.util.OSDetector" %><%@
+page import="com.liferay.portal.kernel.util.Portal" %><%@
 page import="com.liferay.portal.kernel.util.PortalClassLoaderUtil" %><%@
+page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
 page import="com.liferay.portal.kernel.util.PropsKeys" %><%@
 page import="com.liferay.portal.kernel.util.ServerDetector" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %><%@
@@ -62,12 +68,6 @@ page import="com.liferay.portal.service.CompanyLocalServiceUtil" %><%@
 page import="com.liferay.portal.service.GroupLocalServiceUtil" %><%@
 page import="com.liferay.portal.service.ServiceContext" %><%@
 page import="com.liferay.portal.service.UserLocalServiceUtil" %><%@
-page import="com.liferay.portal.theme.ThemeDisplay" %><%@
-page import="com.liferay.portal.util.Portal" %><%@
-page import="com.liferay.portal.util.PortalUtil" %><%@
-page import="com.liferay.portlet.blogs.service.BlogsEntryLocalService" %><%@
-page import="com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil" %><%@
-page import="com.liferay.portlet.blogs.service.BlogsStatsUserLocalServiceUtil" %><%@
 page import="com.liferay.testpacl.hook.action.FailureStrutsAction" %><%@
 page import="com.liferay.testpacl.hook.action.SuccessStrutsAction" %><%@
 page import="com.liferay.testpacl.hook.indexer.OrganizationIndexerPostProcessor" %><%@

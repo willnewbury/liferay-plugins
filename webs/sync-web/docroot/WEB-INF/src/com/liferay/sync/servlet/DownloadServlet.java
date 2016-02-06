@@ -17,9 +17,13 @@ package com.liferay.sync.servlet;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.PortalSessionThreadLocal;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
@@ -29,6 +33,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -38,14 +43,9 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Image;
 import com.liferay.portal.model.ImageConstants;
 import com.liferay.portal.model.User;
-import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
-import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ImageServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.documentlibrary.exception.DuplicateFileException;
 import com.liferay.portlet.documentlibrary.exception.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.exception.NoSuchFileVersionException;
@@ -55,7 +55,9 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalServiceUtil;
 import com.liferay.sync.SyncSiteUnavailableException;
 import com.liferay.sync.model.SyncDLFileVersionDiff;
+import com.liferay.sync.model.SyncDevice;
 import com.liferay.sync.service.SyncDLFileVersionDiffLocalServiceUtil;
+import com.liferay.sync.service.SyncDeviceLocalServiceUtil;
 import com.liferay.sync.util.PortletPropsValues;
 import com.liferay.sync.util.SyncUtil;
 
@@ -90,6 +92,19 @@ public class DownloadServlet extends HttpServlet {
 			}
 
 			User user = PortalUtil.getUser(request);
+
+			String syncUuid = request.getHeader("Sync-UUID");
+
+			if (syncUuid != null) {
+				SyncDevice syncDevice =
+					SyncDeviceLocalServiceUtil.
+						fetchSyncDeviceByUuidAndCompanyId(
+							syncUuid, user.getCompanyId());
+
+				if (syncDevice != null) {
+					syncDevice.checkStatus();
+				}
+			}
 
 			PermissionChecker permissionChecker =
 				PermissionCheckerFactoryUtil.create(user);
@@ -136,7 +151,7 @@ public class DownloadServlet extends HttpServlet {
 			}
 			else {
 				long groupId = GetterUtil.getLong(pathArray[0]);
-				String uuid = pathArray[1];
+				String fileUuid = pathArray[1];
 
 				Group group = GroupLocalServiceUtil.fetchGroup(groupId);
 
@@ -154,11 +169,11 @@ public class DownloadServlet extends HttpServlet {
 
 				if (patch) {
 					sendPatch(
-						request, response, user.getUserId(), groupId, uuid);
+						request, response, user.getUserId(), groupId, fileUuid);
 				}
 				else {
 					sendFile(
-						request, response, user.getUserId(), groupId, uuid);
+						request, response, user.getUserId(), groupId, fileUuid);
 				}
 			}
 		}
@@ -469,8 +484,9 @@ public class DownloadServlet extends HttpServlet {
 				}
 			}
 			catch (Exception e) {
-				processException(
-					zipFileId, e.getClass().getName(), errorsJSONObject);
+				Class clazz = e.getClass();
+
+				processException(zipFileId, clazz.getName(), errorsJSONObject);
 			}
 		}
 

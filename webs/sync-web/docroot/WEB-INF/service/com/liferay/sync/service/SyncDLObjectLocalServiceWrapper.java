@@ -304,6 +304,27 @@ public class SyncDLObjectLocalServiceWrapper implements SyncDLObjectLocalService
 			arguments);
 	}
 
+	@Override
+	public void moveDependentSyncDLObjects(
+		com.liferay.sync.model.SyncDLObject parentSyncDLObject)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_syncDLObjectLocalService.moveDependentSyncDLObjects(parentSyncDLObject);
+	}
+
+	@Override
+	public void restoreDependentSyncDLObjects(
+		com.liferay.sync.model.SyncDLObject parentSyncDLObject)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_syncDLObjectLocalService.restoreDependentSyncDLObjects(parentSyncDLObject);
+	}
+
+	@Override
+	public void trashDependentSyncDLObjects(
+		com.liferay.sync.model.SyncDLObject parentSyncDLObject)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_syncDLObjectLocalService.trashDependentSyncDLObjects(parentSyncDLObject);
+	}
+
 	/**
 	* Updates the sync d l object in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*

@@ -16,8 +16,13 @@ package com.liferay.testblob.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.expando.kernel.model.ExpandoBridge;
+
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import java.io.Serializable;
 
 import java.sql.Blob;
 
@@ -103,7 +108,7 @@ public class TestBlobEntryWrapper implements TestBlobEntry,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _testBlobEntry.getExpandoBridge();
 	}
 
@@ -118,7 +123,7 @@ public class TestBlobEntryWrapper implements TestBlobEntry,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _testBlobEntry.getPrimaryKeyObj();
 	}
 
@@ -189,14 +194,12 @@ public class TestBlobEntryWrapper implements TestBlobEntry,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_testBlobEntry.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_testBlobEntry.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -216,7 +219,7 @@ public class TestBlobEntryWrapper implements TestBlobEntry,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_testBlobEntry.setPrimaryKeyObj(primaryKeyObj);
 	}
 

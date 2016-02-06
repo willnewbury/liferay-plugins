@@ -16,10 +16,15 @@ package com.liferay.wsrp.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.expando.kernel.model.ExpandoBridge;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
 
-import com.liferay.portlet.exportimport.lar.StagedModelType;
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -163,7 +168,7 @@ public class WSRPProducerWrapper implements WSRPProducer,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _wsrpProducer.getExpandoBridge();
 	}
 
@@ -228,7 +233,7 @@ public class WSRPProducerWrapper implements WSRPProducer,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _wsrpProducer.getPrimaryKeyObj();
 	}
 
@@ -324,14 +329,12 @@ public class WSRPProducerWrapper implements WSRPProducer,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_wsrpProducer.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_wsrpProducer.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -401,7 +404,7 @@ public class WSRPProducerWrapper implements WSRPProducer,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_wsrpProducer.setPrimaryKeyObj(primaryKeyObj);
 	}
 

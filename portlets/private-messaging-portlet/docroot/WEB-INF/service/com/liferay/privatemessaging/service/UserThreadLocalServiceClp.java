@@ -33,14 +33,14 @@ public class UserThreadLocalServiceClp implements UserThreadLocalService {
 		_methodParameterTypes0 = new String[] {
 				"long", "long", "java.lang.String", "java.lang.String",
 				"java.lang.String", "java.util.List",
-				"com.liferay.portal.theme.ThemeDisplay"
+				"com.liferay.portal.kernel.theme.ThemeDisplay"
 			};
 
 		_methodName1 = "addPrivateMessageBranch";
 
 		_methodParameterTypes1 = new String[] {
 				"long", "long", "java.lang.String", "java.util.List",
-				"com.liferay.portal.theme.ThemeDisplay"
+				"com.liferay.portal.kernel.theme.ThemeDisplay"
 			};
 
 		_methodName2 = "addUserThread";
@@ -203,11 +203,11 @@ public class UserThreadLocalServiceClp implements UserThreadLocalService {
 	}
 
 	@Override
-	public com.liferay.portlet.messageboards.model.MBMessage addPrivateMessage(
+	public com.liferay.message.boards.kernel.model.MBMessage addPrivateMessage(
 		long userId, long mbThreadId, java.lang.String to,
 		java.lang.String subject, java.lang.String body,
 		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		Object returnObj = null;
 
@@ -246,14 +246,14 @@ public class UserThreadLocalServiceClp implements UserThreadLocalService {
 			}
 		}
 
-		return (com.liferay.portlet.messageboards.model.MBMessage)ClpSerializer.translateOutput(returnObj);
+		return (com.liferay.message.boards.kernel.model.MBMessage)ClpSerializer.translateOutput(returnObj);
 	}
 
 	@Override
-	public com.liferay.portlet.messageboards.model.MBMessage addPrivateMessageBranch(
+	public com.liferay.message.boards.kernel.model.MBMessage addPrivateMessageBranch(
 		long userId, long parentMBMessageId, java.lang.String body,
 		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		Object returnObj = null;
 
@@ -288,7 +288,7 @@ public class UserThreadLocalServiceClp implements UserThreadLocalService {
 			}
 		}
 
-		return (com.liferay.portlet.messageboards.model.MBMessage)ClpSerializer.translateOutput(returnObj);
+		return (com.liferay.message.boards.kernel.model.MBMessage)ClpSerializer.translateOutput(returnObj);
 	}
 
 	@Override

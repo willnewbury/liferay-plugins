@@ -27,7 +27,7 @@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
-<%@ page import="com.liferay.portlet.PortletURLUtil" %>
+<%@ page import="com.liferay.portal.kernel.portlet.PortletURLUtil" %>
 
 <%@ page import="javax.portlet.PortletMode" %><%@
 page import="javax.portlet.PortletURL" %><%@
@@ -45,5 +45,5 @@ PortletURL currentURLObj = PortletURLUtil.getCurrent(liferayPortletRequest, life
 
 String currentURL = currentURLObj.toString();
 
-String layoutURL = com.liferay.portal.util.PortalUtil.getLayoutURL(layout, themeDisplay);
+String layoutURL = com.liferay.portal.kernel.util.PortalUtil.getLayoutURL(layout, themeDisplay);
 %>

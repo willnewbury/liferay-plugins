@@ -18,8 +18,10 @@
 package com.liferay.so.hook.upgrade.v3_0_0;
 
 import com.liferay.announcements.web.constants.AnnouncementsPortletKeys;
+import com.liferay.expando.kernel.model.ExpandoTableConstants;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -29,8 +31,6 @@ import com.liferay.portal.model.LayoutTemplate;
 import com.liferay.portal.model.LayoutTypePortlet;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.expando.model.ExpandoTableConstants;
 import com.liferay.so.util.LayoutSetPrototypeUtil;
 import com.liferay.so.util.LayoutUtil;
 import com.liferay.so.util.PortletKeys;

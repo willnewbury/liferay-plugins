@@ -114,7 +114,7 @@ public class KBArticleServiceUtil {
 	public static java.lang.String getGroupKBArticlesRSS(int status,
 		int rssDelta, java.lang.String rssDisplayStyle,
 		java.lang.String rssFormat,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .getGroupKBArticlesRSS(status, rssDelta, rssDisplayStyle,
@@ -138,7 +138,7 @@ public class KBArticleServiceUtil {
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
 	#getKBArticleAndAllDescendantKBArticles(long, long, int,
-	com.liferay.portal.kernel.util.OrderByComparator)}
+	OrderByComparator)}
 	*/
 	@Deprecated
 	public static java.util.List<com.liferay.knowledgebase.model.KBArticle> getKBArticleAndAllDescendants(
@@ -152,7 +152,7 @@ public class KBArticleServiceUtil {
 	public static java.lang.String getKBArticleRSS(long resourcePrimKey,
 		int status, int rssDelta, java.lang.String rssDisplayStyle,
 		java.lang.String rssFormat,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .getKBArticleRSS(resourcePrimKey, status, rssDelta,
@@ -253,7 +253,7 @@ public class KBArticleServiceUtil {
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #getKBArticles(long, long,
 	int, int, int,
-	com.liferay.portal.kernel.util.OrderByComparator)}
+	OrderByComparator)}
 	*/
 	@Deprecated
 	public static java.util.List<com.liferay.knowledgebase.model.KBArticle> getSiblingKBArticles(

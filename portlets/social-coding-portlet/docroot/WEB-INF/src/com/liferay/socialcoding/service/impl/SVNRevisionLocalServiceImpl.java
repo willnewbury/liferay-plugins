@@ -16,10 +16,10 @@ package com.liferay.socialcoding.service.impl;
 
 import com.liferay.portal.exception.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.User;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.social.service.SocialActivityLocalServiceUtil;
+import com.liferay.social.kernel.service.SocialActivityLocalServiceUtil;
 import com.liferay.socialcoding.exception.NoSuchSVNRevisionException;
 import com.liferay.socialcoding.model.SVNRevision;
 import com.liferay.socialcoding.service.base.SVNRevisionLocalServiceBaseImpl;
