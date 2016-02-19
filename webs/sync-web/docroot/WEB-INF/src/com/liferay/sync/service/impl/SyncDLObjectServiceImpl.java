@@ -71,10 +71,13 @@ import com.liferay.sync.model.SyncContext;
 import com.liferay.sync.model.SyncDLObject;
 import com.liferay.sync.model.SyncDLObjectConstants;
 import com.liferay.sync.model.SyncDLObjectUpdate;
+import com.liferay.sync.model.SyncDevice;
 import com.liferay.sync.service.base.SyncDLObjectServiceBaseImpl;
+import com.liferay.sync.shared.util.SyncDeviceConstants;
 import com.liferay.sync.util.JSONWebServiceActionParametersMap;
 import com.liferay.sync.util.PortletPropsKeys;
 import com.liferay.sync.util.PortletPropsValues;
+import com.liferay.sync.util.SyncDeviceThreadLocal;
 import com.liferay.sync.util.SyncUtil;
 import com.liferay.sync.util.comparator.SyncDLObjectModifiedTimeComparator;
 
@@ -510,25 +513,27 @@ public class SyncDLObjectServiceImpl extends SyncDLObjectServiceBaseImpl {
 
 			syncContext.setAuthType(authType);
 
-			boolean oAuthEnabled = PrefsPropsUtil.getBoolean(
-				user.getCompanyId(), PortletPropsKeys.SYNC_OAUTH_ENABLED,
-				PortletPropsValues.SYNC_OAUTH_ENABLED);
+			if (syncDeviceSupports(SyncDeviceConstants.FEATURE_SET_1)) {
+				boolean oAuthEnabled = PrefsPropsUtil.getBoolean(
+					user.getCompanyId(), PortletPropsKeys.SYNC_OAUTH_ENABLED,
+					PortletPropsValues.SYNC_OAUTH_ENABLED);
 
-			if (oAuthEnabled) {
-				String oAuthConsumerKey = PrefsPropsUtil.getString(
-					user.getCompanyId(),
-					PortletPropsKeys.SYNC_OAUTH_CONSUMER_KEY);
+				if (oAuthEnabled) {
+					String oAuthConsumerKey = PrefsPropsUtil.getString(
+						user.getCompanyId(),
+						PortletPropsKeys.SYNC_OAUTH_CONSUMER_KEY);
 
-				syncContext.setOAuthConsumerKey(oAuthConsumerKey);
+					syncContext.setOAuthConsumerKey(oAuthConsumerKey);
 
-				String oAuthConsumerSecret = PrefsPropsUtil.getString(
-					user.getCompanyId(),
-					PortletPropsKeys.SYNC_OAUTH_CONSUMER_SECRET);
+					String oAuthConsumerSecret = PrefsPropsUtil.getString(
+						user.getCompanyId(),
+						PortletPropsKeys.SYNC_OAUTH_CONSUMER_SECRET);
 
-				syncContext.setOAuthConsumerSecret(oAuthConsumerSecret);
+					syncContext.setOAuthConsumerSecret(oAuthConsumerSecret);
+				}
+
+				syncContext.setOAuthEnabled(oAuthEnabled);
 			}
-
-			syncContext.setOAuthEnabled(oAuthEnabled);
 
 			PluginPackage syncWebPluginPackage =
 				DeployManagerUtil.getInstalledPluginPackage("sync-web");
@@ -552,7 +557,10 @@ public class SyncDLObjectServiceImpl extends SyncDLObjectServiceBaseImpl {
 				}
 
 				syncContext.setUser(user);
-				syncContext.setUserSitesGroups(getUserSitesGroups());
+
+				if (!syncDeviceSupports(SyncDeviceConstants.FEATURE_SET_1)) {
+					syncContext.setUserSitesGroups(getUserSitesGroups());
+				}
 			}
 
 			return syncContext;
@@ -1060,6 +1068,16 @@ public class SyncDLObjectServiceImpl extends SyncDLObjectServiceBaseImpl {
 		}
 	}
 
+	protected static boolean syncDeviceSupports(int featureSet) {
+		SyncDevice syncDevice = SyncDeviceThreadLocal.getSyncDevice();
+
+		if (syncDevice == null) {
+			return false;
+		}
+
+		return syncDevice.supports(featureSet);
+	}
+
 	protected void checkFileEntry(FileEntry fileEntry) throws PortalException {
 
 		// SYNC-1542
@@ -1079,12 +1097,18 @@ public class SyncDLObjectServiceImpl extends SyncDLObjectServiceBaseImpl {
 			if (dlFolder.isInTrash()) {
 				throw new NoSuchFolderException();
 			}
+
+			return;
 		}
 
 		throw new PortalException("Folder must be an instance of DLFolder");
 	}
 
 	protected void checkFolder(long folderId) throws PortalException {
+		if (folderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			return;
+		}
+
 		Folder folder = dlAppService.getFolder(folderId);
 
 		checkFolder(folder);

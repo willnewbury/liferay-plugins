@@ -48,7 +48,6 @@ import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.TransientValue;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.util.Encryptor;
@@ -78,6 +77,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -157,6 +157,10 @@ import org.apache.axis.message.MessageElement;
 public class ConsumerPortlet extends GenericPortlet {
 
 	public static final String PORTLET_NAME_PREFIX = "WSRP_";
+
+	public static ConcurrentHashMap<String, ServiceHolder> getServiceHolders() {
+		return _SERVICE_HOLDER_CACHE;
+	}
 
 	@Override
 	public void processAction(
@@ -789,14 +793,11 @@ public class ConsumerPortlet extends GenericPortlet {
 		String markupServiceKey = getSessionKey(
 			WebKeys.MARKUP_SERVICE, portletRequest, wsrpConsumer);
 
-		TransientValue<ServiceHolder> serviceHolderTransientValue =
-			(TransientValue<ServiceHolder>)portletSession.getAttribute(
-				markupServiceKey, PortletSession.APPLICATION_SCOPE);
+		ServiceHolder serviceHolder = _SERVICE_HOLDER_CACHE.get(
+			markupServiceKey);
 
-		if ((serviceHolderTransientValue == null) ||
-			serviceHolderTransientValue.isNull()) {
-
-			ServiceHolder serviceHolder = new ServiceHolder();
+		if (serviceHolder == null) {
+			serviceHolder = new ServiceHolder();
 
 			WSRP_v2_Markup_PortType markupService =
 				wsrpConsumerManager.getMarkupService();
@@ -808,11 +809,7 @@ public class ConsumerPortlet extends GenericPortlet {
 
 			serviceHolder.setRegistrationContext(registrationContext);
 
-			serviceHolderTransientValue = new TransientValue<>(serviceHolder);
-
-			portletSession.setAttribute(
-				markupServiceKey, serviceHolderTransientValue,
-				PortletSession.APPLICATION_SCOPE);
+			_SERVICE_HOLDER_CACHE.put(markupServiceKey, serviceHolder);
 
 			ServiceDescription serviceDescription =
 				wsrpConsumerManager.getServiceDescription();
@@ -846,7 +843,7 @@ public class ConsumerPortlet extends GenericPortlet {
 			}
 		}
 
-		return serviceHolderTransientValue.getValue();
+		return serviceHolder;
 	}
 
 	protected String getSessionKey(
@@ -2081,6 +2078,9 @@ public class ConsumerPortlet extends GenericPortlet {
 		"wsrp-resourceState={wsrp-resourceState}&" +
 		"wsrp-requiresRewrite={wsrp-requiresRewrite}&" +
 		"wsrp-resourceCacheability={wsrp-resourceCacheability}/wsrp_rewrite";
+
+	private static final ConcurrentHashMap<String, ServiceHolder> _SERVICE_HOLDER_CACHE =
+		new ConcurrentHashMap<>();
 
 	private static Log _log = LogFactoryUtil.getLog(ConsumerPortlet.class);
 

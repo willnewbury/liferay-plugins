@@ -16,10 +16,11 @@ package com.liferay.wsrp.servlet;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.TransientValue;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.wsrp.consumer.portlet.ConsumerPortlet;
 
 import java.util.Enumeration;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -44,16 +45,11 @@ public class WSRPSessionListener implements HttpSessionListener {
 
 		Enumeration<String> enu = session.getAttributeNames();
 
-		while (enu.hasMoreElements()) {
-			String name = enu.nextElement();
+		Map<String, ServiceHolder> serviceHolders =
+			ConsumerPortlet.getServiceHolders();
 
-			Object value = session.getAttribute(name);
-
-			if (value instanceof TransientValue) {
-				TransientValue<?> transientValue = ((TransientValue<?>)value);
-
-				releaseSessions(transientValue.getValue());
-			}
+		for (ServiceHolder serviceHolder : serviceHolders.values()) {
+			releaseSessions(serviceHolder);
 		}
 	}
 

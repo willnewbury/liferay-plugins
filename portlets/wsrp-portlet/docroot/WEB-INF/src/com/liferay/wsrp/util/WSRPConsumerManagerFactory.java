@@ -17,7 +17,6 @@ package com.liferay.wsrp.util;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.AutoResetThreadLocal;
-import com.liferay.portal.kernel.util.TransientValue;
 import com.liferay.wsrp.model.WSRPConsumer;
 
 import java.util.Map;
@@ -34,12 +33,6 @@ public class WSRPConsumerManagerFactory {
 
 	public static void destroyWSRPConsumerManager(String url) {
 		_wsrpConsumerManagers.remove(url);
-
-		HttpSession session = getSession();
-
-		if (session != null) {
-			session.removeAttribute(WebKeys.WSRP_CONSUMER_MANAGERS);
-		}
 	}
 
 	public static HttpSession getSession() {
@@ -102,32 +95,8 @@ public class WSRPConsumerManagerFactory {
 			String forwardCookies, String forwardHeaders)
 		throws Exception {
 
-		HttpSession session = getSession();
-
-		Map<String, WSRPConsumerManager> wsrpConsumerManagers = null;
-
-		if (session != null) {
-			TransientValue<Map<String, WSRPConsumerManager>> transientValue =
-				(TransientValue<Map<String, WSRPConsumerManager>>)
-					session.getAttribute(WebKeys.WSRP_CONSUMER_MANAGERS);
-
-			if (transientValue == null) {
-				transientValue =
-					new TransientValue<Map<String, WSRPConsumerManager>>(
-						new ConcurrentHashMap<String, WSRPConsumerManager>());
-
-				session.setAttribute(
-					WebKeys.WSRP_CONSUMER_MANAGERS, transientValue);
-			}
-
-			wsrpConsumerManagers = transientValue.getValue();
-		}
-
-		if (wsrpConsumerManagers == null) {
-			wsrpConsumerManagers = _wsrpConsumerManagers;
-		}
-
-		WSRPConsumerManager wsrpConsumerManager = wsrpConsumerManagers.get(url);
+		WSRPConsumerManager wsrpConsumerManager = _wsrpConsumerManagers.get(
+			url);
 
 		if (wsrpConsumerManager == null) {
 			String userToken = _getUserToken();
@@ -136,7 +105,7 @@ public class WSRPConsumerManagerFactory {
 				url, registrationContext, forwardCookies, forwardHeaders,
 				userToken);
 
-			wsrpConsumerManagers.put(url, wsrpConsumerManager);
+			_wsrpConsumerManagers.put(url, wsrpConsumerManager);
 		}
 
 		return wsrpConsumerManager;
@@ -144,7 +113,7 @@ public class WSRPConsumerManagerFactory {
 
 	private static AutoResetThreadLocal<HttpSession> _session =
 		new AutoResetThreadLocal<>(HttpSession.class + "._session", null);
-	private static Map<String, WSRPConsumerManager>
+	private static final Map<String, WSRPConsumerManager>
 		_wsrpConsumerManagers = new ConcurrentHashMap<>();
 
 }
