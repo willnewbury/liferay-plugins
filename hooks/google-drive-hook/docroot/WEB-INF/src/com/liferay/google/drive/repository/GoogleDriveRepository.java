@@ -55,7 +55,6 @@ import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.TransientValue;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.repository.external.CredentialsProvider;
@@ -77,6 +76,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
 
@@ -890,13 +890,10 @@ public class GoogleDriveRepository
 		HttpSession httpSession = PortalSessionThreadLocal.getHttpSession();
 
 		if (httpSession != null) {
-			TransientValue<GoogleDriveSession> transientValue =
-				(TransientValue<GoogleDriveSession>)httpSession.getAttribute(
-					GoogleDriveSession.class.getName());
+			String rootFolderKey = (String)httpSession.getAttribute(
+				GoogleDriveSession.class.getName());
 
-			if (transientValue != null) {
-				googleDriveSession = transientValue.getValue();
-			}
+			googleDriveSession = _GOOGLE_DRIVE_CACHE.get(rootFolderKey);
 		}
 		else {
 			googleDriveSession = _googleDriveSessionThreadLocal.get();
@@ -914,9 +911,12 @@ public class GoogleDriveRepository
 		}
 
 		if (httpSession != null) {
+			_GOOGLE_DRIVE_CACHE.put(
+				googleDriveSession.getRootFolderKey(), googleDriveSession);
+
 			httpSession.setAttribute(
 				GoogleDriveSession.class.getName(),
-				new TransientValue<GoogleDriveSession>(googleDriveSession));
+				googleDriveSession.getRootFolderKey());
 		}
 		else {
 			_googleDriveSessionThreadLocal.set(googleDriveSession);
@@ -981,6 +981,9 @@ public class GoogleDriveRepository
 
 	private static final String _FOLDER_MIME_TYPE =
 		"application/vnd.google-apps.folder";
+
+	private static final ConcurrentHashMap<String, GoogleDriveSession>
+		_GOOGLE_DRIVE_CACHE = new ConcurrentHashMap<>();
 
 	private static Log _log = LogFactoryUtil.getLog(
 		GoogleDriveRepository.class);
