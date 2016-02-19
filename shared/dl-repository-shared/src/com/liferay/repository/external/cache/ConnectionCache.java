@@ -15,12 +15,10 @@
 package com.liferay.repository.external.cache;
 
 import com.liferay.portal.kernel.repository.RepositoryException;
-import com.liferay.portal.kernel.servlet.PortalSessionThreadLocal;
 import com.liferay.portal.kernel.util.AutoResetThreadLocal;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.TransientValue;
 
-import javax.servlet.http.HttpSession;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Iván Zaera
@@ -41,19 +39,9 @@ public class ConnectionCache<T> {
 	}
 
 	public T getConnection() throws RepositoryException {
-		T connection = null;
+		T connection = (T)CONNECTION_CACHE.get(_sessionKey);
 
-		HttpSession httpSession = PortalSessionThreadLocal.getHttpSession();
-
-		if (httpSession != null) {
-			TransientValue<T> transientValue =
-				(TransientValue<T>)httpSession.getAttribute(_sessionKey);
-
-			if (transientValue != null) {
-				connection = transientValue.getValue();
-			}
-		}
-		else {
+		if (connection == null) {
 			connection = _connectionThreadLocal.get();
 		}
 
@@ -63,16 +51,15 @@ public class ConnectionCache<T> {
 
 		connection = _connectionBuilder.buildConnection();
 
-		if (httpSession != null) {
-			TransientValue<T> transientValue = new TransientValue<>(connection);
-
-			httpSession.setAttribute(_sessionKey, transientValue);
-		}
+		CONNECTION_CACHE.put(_sessionKey, connection);
 
 		_connectionThreadLocal.set(connection);
 
 		return connection;
 	}
+
+	private static final ConcurrentHashMap<String, Object> CONNECTION_CACHE =
+		new ConcurrentHashMap<>();
 
 	private ConnectionBuilder<T> _connectionBuilder;
 	private ThreadLocal<T> _connectionThreadLocal;
